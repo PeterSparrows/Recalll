@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create account — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+</head>
+<body>
+  <div class="auth-screen">
+    <aside class="auth-screen__aside">
+      <div class="brand" style="display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;color:var(--paper-50);">
+        <span class="logo-mark" style="width:34px;height:34px;border-radius:9px;background:var(--marigold);display:grid;place-items:center;color:#14100a;font-weight:800;">R</span>
+        Recall
+      </div>
+      <blockquote class="auth-screen__quote">
+        "Tell me and I forget. Teach me and I remember. Involve me and I learn."
+        <span>Recall does the involving part for you.</span>
+      </blockquote>
+    </aside>
+
+    <main class="auth-screen__main">
+      <div class="auth-card">
+        <div class="auth-card__brand">
+          <span class="logo-mark">R</span><span>Recall</span>
+        </div>
+        <h1>Create your account</h1>
+        <p class="auth-card__sub">Free, and it stays that way — no card required.</p>
+
+        <form id="signup-form" novalidate>
+          <div class="field">
+            <label for="full_name">Full name</label>
+            <input class="input" type="text" id="full_name" name="full_name" placeholder="Peter Okafor" required autocomplete="name" />
+            <div class="field-error" id="full_name-error"></div>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" type="email" id="email" name="email" placeholder="you@futo.edu.ng" required autocomplete="email" />
+            <div class="field-error" id="email-error"></div>
+          </div>
+          <div class="auth-form-grid">
+            <div class="field">
+              <label for="department">Department <span class="field-hint">(optional)</span></label>
+              <input class="input" type="text" id="department" name="department" placeholder="Information Technology" />
+            </div>
+            <div class="field">
+              <label for="level">Level <span class="field-hint">(optional)</span></label>
+              <input class="input" type="text" id="level" name="level" placeholder="400" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input class="input" type="password" id="password" name="password" placeholder="At least 8 characters, 1 number" required autocomplete="new-password" />
+            <div class="field-error" id="password-error"></div>
+          </div>
+          <div class="field">
+            <label class="checkbox-row" for="terms_accepted">
+              <input type="checkbox" id="terms_accepted" name="terms_accepted" required />
+              <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--marigold); font-weight:600;">Terms and Conditions</a>, including receiving account, verification, and daily study reminder emails (reminders can be turned off anytime in Settings).</span>
+            </label>
+            <div class="field-error" id="terms_accepted-error"></div>
+          </div>
+          <button type="submit" class="btn btn--primary btn--block" id="signup-submit">
+            <span id="signup-submit-label">Create account</span>
+          </button>
+        </form>
+
+        <p class="auth-card__footer">Already have an account? <a href="login.html">Log in</a></p>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    const form = document.getElementById('signup-form');
+    const submitBtn = document.getElementById('signup-submit');
+    const submitLabel = document.getElementById('signup-submit-label');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ['full_name', 'email', 'password', 'terms_accepted'].forEach((f) => {
+        const el = document.getElementById(`${f}-error`);
+        if (el) el.textContent = '';
+      });
+
+      if (!document.getElementById('terms_accepted').checked) {
+        document.getElementById('terms_accepted-error').textContent = 'You must accept the Terms and Conditions to continue.';
+        return;
+      }
+
+      const payload = {
+        full_name: document.getElementById('full_name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        department: document.getElementById('department').value.trim(),
+        level: document.getElementById('level').value.trim(),
+        terms_accepted: document.getElementById('terms_accepted').checked,
+      };
+
+      submitBtn.disabled = true;
+      submitLabel.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res = await Api.register(payload);
+        Api.setAccessToken(res.data.accessToken);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        UI.toast('Account created! Redirecting…', 'success');
+        setTimeout(() => (window.location.href = 'dashboard.html'), 500);
+      } catch (err) {
+        if (err.details) {
+          err.details.forEach((d) => {
+            const el = document.getElementById(`${d.field}-error`);
+            if (el) el.textContent = d.message;
+          });
+        }
+        UI.toast(UI.apiErrorMessage(err), 'error');
+        submitBtn.disabled = false;
+        submitLabel.textContent = 'Create account';
+      }
+    });
+  </script>
+</body>
+</html>

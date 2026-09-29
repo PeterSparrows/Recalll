@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log in — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+</head>
+<body>
+  <div class="auth-screen">
+    <aside class="auth-screen__aside">
+      <div class="brand" style="display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;color:var(--paper-50);">
+        <span class="logo-mark" style="width:34px;height:34px;border-radius:9px;background:var(--marigold);display:grid;place-items:center;color:#14100a;font-weight:800;">R</span>
+        Recall
+      </div>
+      <blockquote class="auth-screen__quote">
+        "The palest ink is better than the best memory."
+        <span>Old proverb — and exactly why you're here.</span>
+      </blockquote>
+    </aside>
+
+    <main class="auth-screen__main">
+      <div class="auth-card">
+        <div class="auth-card__brand">
+          <span class="logo-mark">R</span><span>Recall</span>
+        </div>
+        <h1>Welcome back</h1>
+        <p class="auth-card__sub">Log in to pick up your revision where you left off.</p>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" type="email" id="email" name="email" placeholder="you@futo.edu.ng" required autocomplete="email" />
+            <div class="field-error" id="email-error"></div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input class="input" type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+            <div class="field-error" id="password-error"></div>
+          </div>
+          <div class="flex" style="justify-content:space-between; margin-bottom: 22px;">
+            <label class="checkbox-row"><input type="checkbox" id="remember" /> Keep me logged in</label>
+            <a href="#" id="forgot-link" class="text-sm" style="color:var(--marigold); font-weight:600;">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn--primary btn--block" id="login-submit">
+            <span id="login-submit-label">Log in</span>
+          </button>
+        </form>
+
+        <p class="auth-card__footer">Don't have an account? <a href="signup.html">Create one</a></p>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    const form = document.getElementById('login-form');
+    const submitBtn = document.getElementById('login-submit');
+    const submitLabel = document.getElementById('login-submit-label');
+
+    // If already logged in, skip straight to the dashboard.
+    (async () => {
+      if (Api.getAccessToken()) {
+        try {
+          await Api.me();
+          window.location.href = 'dashboard.html';
+        } catch (e) { Api.clearSession(); }
+      }
+    })();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('email-error').textContent = '';
+      document.getElementById('password-error').textContent = '';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      submitBtn.disabled = true;
+      submitLabel.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res = await Api.login({ email, password });
+        Api.setAccessToken(res.data.accessToken);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        const params = new URLSearchParams(location.search);
+        window.location.href = params.get('next') ? decodeURIComponent(params.get('next')) : 'dashboard.html';
+      } catch (err) {
+        if (err.details) {
+          err.details.forEach((d) => {
+            const el = document.getElementById(`${d.field}-error`);
+            if (el) el.textContent = d.message;
+          });
+        }
+        UI.toast(UI.apiErrorMessage(err), 'error');
+        submitBtn.disabled = false;
+        submitLabel.textContent = 'Log in';
+      }
+    });
+
+    document.getElementById('forgot-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = prompt('Enter your account email and we\'ll send a reset link:');
+      if (!email) return;
+      try {
+        await Api.forgotPassword(email);
+        UI.toast('If that email exists, a reset link has been sent.', 'success');
+      } catch (err) {
+        UI.toast(UI.apiErrorMessage(err), 'error');
+      }
+    });
+  </script>
+</body>
+</html>

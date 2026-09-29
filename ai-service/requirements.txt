@@ -1,0 +1,29 @@
+# --- Web framework ---
+fastapi==0.141.1
+uvicorn[standard]==0.52.0
+python-multipart==0.0.32
+pydantic==2.13.4
+pydantic-settings==2.14.2
+python-dotenv==1.2.2
+
+# --- Document extraction ---
+pymupdf==1.28.0
+pdfplumber==0.11.10
+python-docx==1.2.0
+python-pptx==1.0.2
+
+# --- NLP / vector search (100% local, no external model downloads) ---
+scikit-learn==1.9.0
+numpy==2.5.1
+scipy==1.18.0
+faiss-cpu==1.14.3
+
+# NOTE ON MODELS:
+# This requirements file gives a fully local, network-independent
+# pipeline using TF-IDF + SVD for "embeddings" and rule-based/heuristic
+# NLP for question generation. To upgrade to real neural models
+# (sentence-transformers embeddings, FLAN-T5 question generation), add:
+#   sentence-transformers==3.*
+#   transformers==4.*
+#   torch==2.*
+# See README.md "Upgrading to Real Local Models" for the swap-in guide.

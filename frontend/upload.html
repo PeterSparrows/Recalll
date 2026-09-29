@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Materials — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+  <link rel="stylesheet" href="assets/css/quiz-results.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-root"></div>
+    <div>
+      <div id="topbar-root"></div>
+      <main class="content">
+        <div class="page-header">
+          <div><h1>Upload Materials</h1><p>PDF, Word, PowerPoint, or plain text — up to 25MB.</p></div>
+        </div>
+
+        <div class="glass card">
+          <div class="field" style="max-width:280px; margin-bottom:20px;">
+            <label for="course-select">Assign to a course <span class="field-hint">(optional)</span></label>
+            <select class="input" id="course-select">
+              <option value="">No course</option>
+            </select>
+          </div>
+
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" accept=".pdf,.docx,.pptx,.txt" multiple style="display:none;" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-5 5M12 4l5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <h3>Drag files here, or click to browse</h3>
+            <p>Supports .pdf, .docx, .pptx, .txt</p>
+          </div>
+        </div>
+
+        <div class="glass card mt-24">
+          <div class="panel-title"><h3>Your materials</h3></div>
+          <div id="materials-list"><div class="skeleton" style="height:70px;"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Generate quiz modal -->
+  <div class="modal-scrim" id="quiz-modal">
+    <div class="modal glass-strong">
+      <h3>Generate a quiz</h3>
+      <p class="text-muted text-sm" style="margin-bottom:18px;">Built from <strong id="quiz-modal-material-name"></strong>.</p>
+      <form id="quiz-form">
+        <input type="hidden" id="quiz-material-id" />
+        <div class="field">
+          <label for="quiz-title">Title</label>
+          <input class="input" id="quiz-title" maxlength="150" />
+        </div>
+        <div class="field">
+          <label for="quiz-scope">Scope</label>
+          <select class="input" id="quiz-scope">
+            <option value="full_document">Entire document</option>
+            <option value="topics">Selected topics</option>
+          </select>
+        </div>
+        <div class="field" id="quiz-topics-field" style="display:none;">
+          <label>Topics <span class="field-hint">(select one or more)</span></label>
+          <div id="quiz-topics-checkboxes" class="flex gap-8" style="flex-wrap:wrap;"></div>
+        </div>
+        <div class="auth-form-grid">
+          <div class="field">
+            <label for="quiz-count">Number of questions</label>
+            <input class="input" id="quiz-count" type="number" min="1" max="50" value="10" />
+          </div>
+          <div class="field">
+            <label for="quiz-difficulty">Difficulty</label>
+            <select class="input" id="quiz-difficulty">
+              <option value="mixed">Mixed</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Question types</label>
+          <div class="flex gap-8" style="flex-wrap:wrap;">
+            <label class="checkbox-row"><input type="checkbox" value="mcq" checked /> MCQ</label>
+            <label class="checkbox-row"><input type="checkbox" value="true_false" checked /> True/False</label>
+            <label class="checkbox-row"><input type="checkbox" value="fill_blank" /> Fill in the blank</label>
+            <label class="checkbox-row"><input type="checkbox" value="short_answer" /> Short answer</label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="quiz-time-limit">Time limit (minutes) <span class="field-hint">(optional)</span></label>
+          <input class="input" id="quiz-time-limit" type="number" min="1" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn--ghost" id="quiz-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="quiz-generate-submit">Generate quiz</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  <script src="assets/js/shell.js"></script>
+  <script src="assets/js/upload.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+  <link rel="stylesheet" href="assets/css/quiz-results.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-root"></div>
+    <div>
+      <div id="topbar-root"></div>
+      <main class="content" style="max-width:820px;">
+
+        <div class="glass card results-hero" id="results-hero">
+          <div class="skeleton" style="height:180px; width:180px; border-radius:50%; margin:0 auto;"></div>
+        </div>
+
+        <div class="glass card mt-24">
+          <div class="panel-title"><h3>Topic performance</h3></div>
+          <canvas id="chart-topic-breakdown" height="140"></canvas>
+        </div>
+
+        <div class="mt-24" id="weak-topics-callout"></div>
+
+        <div class="page-header mt-24">
+          <h1 style="font-size:1.3rem;">Question review</h1>
+          <div class="flex gap-8">
+            <button class="btn btn--ghost btn--sm" id="filter-all">All</button>
+            <button class="btn btn--ghost btn--sm" id="filter-wrong">Wrong only</button>
+          </div>
+        </div>
+        <div id="review-list"><div class="skeleton" style="height:100px;"></div></div>
+
+        <div class="flex gap-12 mt-24" style="justify-content:center;">
+          <button class="btn btn--ghost" id="retry-wrong-btn" style="display:none;">Retry wrong questions</button>
+          <a href="dashboard.html#history" class="btn btn--primary">Back to dashboard</a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  <script src="assets/js/shell.js"></script>
+  <script src="assets/js/results.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms and Conditions — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <style>
+    .legal-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .legal-page .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 30px; }
+    .legal-page h1 { font-size: 2rem; margin-bottom: 6px; }
+    .legal-page .updated { color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 40px; }
+    .legal-page h2 { font-size: 1.15rem; margin: 36px 0 12px; font-family: var(--font-display); }
+    .legal-page p, .legal-page li { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: 12px; }
+    .legal-page ul { padding-left: 22px; margin-bottom: 12px; }
+    .legal-page strong { color: var(--text-primary); }
+    .legal-page .callout {
+      padding: 16px 20px; border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+      background: var(--surface); margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="legal-page">
+    <a href="signup.html" class="back-link">← Back to sign up</a>
+    <h1>Terms and Conditions</h1>
+    <p class="updated">Last updated: August 2026</p>
+
+    <p>Recall is a personal study tool built as an academic project. These terms are intentionally short and written in plain language — this is a student project, not a commercial product, but you're still entitled to know exactly what you're agreeing to.</p>
+
+    <h2>1. What Recall does</h2>
+    <p>Recall lets you upload study material (PDF, Word, PowerPoint, or text files), processes it locally to extract topics and generate practice questions, and tracks your quiz performance to highlight weak topics and suggest revision.</p>
+
+    <h2>2. Your account</h2>
+    <ul>
+      <li>You're responsible for keeping your password secure. Recall never stores your password in plain text — only a securely hashed version.</li>
+      <li>You must provide a real, working email address, since it's used for password resets, account verification, and study reminders (see Section 4).</li>
+      <li>One account per person. Don't share login credentials.</li>
+    </ul>
+
+    <h2>3. Your content</h2>
+    <ul>
+      <li>You keep ownership of anything you upload. Recall only uses it to generate summaries, topics, and quiz questions for your own use.</li>
+      <li>Don't upload material you don't have the right to use (e.g. content you don't own and aren't permitted to process).</li>
+      <li>Quiz questions are generated automatically from your uploaded material using local, non-AI-model text analysis (TF-IDF and rule-based methods, not a language model) — they may occasionally be imperfect. Always double-check generated questions and answers against your source material before relying on them for exam prep.</li>
+    </ul>
+
+    <h2>4. Email communications — what you're agreeing to</h2>
+    <div class="callout">
+      <p style="margin-bottom:0;">By creating an account, you agree to receive the following emails from Recall:</p>
+    </div>
+    <ul>
+      <li><strong>Transactional emails</strong> you can't opt out of, since they're necessary for account security: password reset links and account verification links.</li>
+      <li><strong>Daily study reminder emails</strong>, sent once a day if you haven't logged any study activity yet that day. These are optional — you can turn them off any time from <strong>Settings → Appearance</strong> (or wherever the "Daily reminder emails" toggle lives) without affecting your account otherwise.</li>
+    </ul>
+    <p>Recall does not sell, rent, or share your email address with any third party. Emails are sent through a transactional email provider (Brevo) solely to deliver the messages above.</p>
+
+    <h2>5. Data storage</h2>
+    <p>Your account data, uploaded materials, and quiz history are stored in a MongoDB database associated with this project. As an academic project, no uptime, backup, or long-term data retention guarantee is made — don't treat this as your only copy of anything important.</p>
+
+    <h2>6. No paid AI services</h2>
+    <p>Recall does not use any paid AI API (no OpenAI, no Claude API, no Gemini, etc.) anywhere in its processing pipeline. All document processing and question generation runs on free, open-source, locally-executed software.</p>
+
+    <h2>7. Changes to these terms</h2>
+    <p>If these terms change, the "Last updated" date at the top of this page will change accordingly. Continued use of Recall after changes means you accept the updated terms.</p>
+
+    <h2>8. Contact</h2>
+    <p>This is a student project without a formal support channel. Questions can be directed to the project author directly.</p>
+  </div>
+
+  <script src="assets/js/theme.js"></script>
+</body>
+</html>

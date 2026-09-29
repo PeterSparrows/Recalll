@@ -1,0 +1,17 @@
+module.exports = {
+  User: require('./User'),
+  Course: require('./Course'),
+  Material: require('./Material'),
+  MaterialChunk: require('./MaterialChunk'),
+  Embedding: require('./Embedding'),
+  Quiz: require('./Quiz'),
+  Question: require('./Question'),
+  Attempt: require('./Attempt'),
+  Answer: require('./Answer'),
+  Result: require('./Result'),
+  WeakTopic: require('./WeakTopic'),
+  StudySession: require('./StudySession'),
+  RevisionSchedule: require('./RevisionSchedule'),
+  Notification: require('./Notification'),
+  StudyStreak: require('./StudyStreak'),
+};

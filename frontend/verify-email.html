@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify email — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+</head>
+<body>
+  <div class="auth-screen">
+    <aside class="auth-screen__aside">
+      <div class="brand" style="display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;color:var(--paper-50);">
+        <span class="logo-mark" style="width:34px;height:34px;border-radius:9px;background:var(--marigold);display:grid;place-items:center;color:#14100a;font-weight:800;">R</span>
+        Recall
+      </div>
+    </aside>
+
+    <main class="auth-screen__main">
+      <div class="auth-card" style="text-align:center;">
+        <div class="auth-card__brand" style="justify-content:center;">
+          <span class="logo-mark">R</span><span>Recall</span>
+        </div>
+        <div id="verify-content">
+          <div class="spinner" style="width:32px;height:32px; margin:0 auto 20px;"></div>
+          <h1 style="font-size:1.3rem;">Verifying your email…</h1>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get('token');
+      const content = document.getElementById('verify-content');
+
+      if (!token) {
+        content.innerHTML = `<h1 style="font-size:1.3rem;">No verification token found</h1><p class="text-muted mt-16">This link looks incomplete. Check the email again or request a new one from Settings.</p><a href="login.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to login</a>`;
+        return;
+      }
+
+      try {
+        await Api.verifyEmail(token);
+        content.innerHTML = `<h1 style="font-size:1.3rem;">Email verified ✓</h1><p class="text-muted mt-16">You're all set. You can head back to your dashboard now.</p><a href="dashboard.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to dashboard</a>`;
+      } catch (err) {
+        content.innerHTML = `<h1 style="font-size:1.3rem;">Couldn't verify this link</h1><p class="text-muted mt-16">${err.message || 'The link may have expired.'} You can request a new one from Settings once logged in.</p><a href="login.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to login</a>`;
+      }
+    })();
+  </script>
+</body>
+</html>

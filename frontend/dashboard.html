@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/app-shell.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-root"></div>
+
+    <div>
+      <div id="topbar-root"></div>
+
+      <main class="content">
+
+        <!-- ============ DASHBOARD ============ -->
+        <section class="view is-active" id="view-dashboard" data-view="dashboard">
+          <div id="verify-banner"></div>
+          <div class="page-header">
+            <div>
+              <h1>Welcome back, <span data-user-name>student</span></h1>
+              <p>Here's where things stand today.</p>
+            </div>
+          </div>
+
+          <div class="summary-grid" id="summary-cards">
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+          </div>
+
+          <div class="section-grid">
+            <div class="glass card">
+              <div class="panel-title">
+                <h3>Scores over time</h3>
+              </div>
+              <canvas id="chart-scores" height="180"></canvas>
+            </div>
+
+            <div class="glass card">
+              <div class="panel-title">
+                <h3>Topic strength</h3>
+              </div>
+              <canvas id="chart-topics" height="220"></canvas>
+            </div>
+          </div>
+
+          <div class="section-grid mt-24">
+            <div class="glass card">
+              <div class="panel-title">
+                <h3>Recent quizzes</h3>
+                <button class="link" data-goto="history">View all</button>
+              </div>
+              <div id="recent-quizzes-list"><div class="skeleton" style="height:60px;"></div></div>
+            </div>
+            <div class="glass card">
+              <div class="panel-title">
+                <h3>Weekly study hours</h3>
+              </div>
+              <canvas id="chart-hours" height="200"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ QUIZ HISTORY ============ -->
+        <section class="view" id="view-history" data-view="history">
+          <div class="page-header">
+            <div><h1>Quiz History</h1><p>Every quiz you've taken, most recent first.</p></div>
+          </div>
+          <div class="glass card" style="padding:0;">
+            <table class="data-table">
+              <thead><tr><th>Quiz</th><th>Score</th><th>Grade</th><th>Date</th><th></th></tr></thead>
+              <tbody id="history-table-body">
+                <tr><td colspan="5"><div class="skeleton" style="height:40px;"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ WRONG QUESTIONS ============ -->
+        <section class="view" id="view-wrong" data-view="wrong">
+          <div class="page-header">
+            <div><h1>Wrong Questions Review</h1><p>Every question you've gotten wrong, kept here permanently for review.</p></div>
+          </div>
+          <div id="wrong-list"><div class="skeleton" style="height:100px; margin-bottom:12px;"></div></div>
+        </section>
+
+        <!-- ============ WEAK TOPICS ============ -->
+        <section class="view" id="view-weak" data-view="weak">
+          <div class="page-header">
+            <div><h1>Weak Topics</h1><p>Accuracy per topic, aggregated across every quiz attempt.</p></div>
+          </div>
+          <div id="weak-topics-list" class="tile-grid"><div class="skeleton" style="height:110px;"></div></div>
+        </section>
+
+        <!-- ============ REVISION SCHEDULE ============ -->
+        <section class="view" id="view-revision" data-view="revision">
+          <div class="page-header">
+            <div><h1>Revision Schedule</h1><p>Auto-generated from your weak topics.</p></div>
+          </div>
+          <div id="revision-list"><div class="skeleton" style="height:70px; margin-bottom:10px;"></div></div>
+        </section>
+
+        <!-- ============ STUDY STREAK ============ -->
+        <section class="view" id="view-streak" data-view="streak">
+          <div class="page-header">
+            <div><h1>Study Streak</h1><p>Consistency compounds. Keep the chain going.</p></div>
+          </div>
+          <div class="summary-grid" id="streak-cards">
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+            <div class="skeleton" style="height:112px;"></div>
+          </div>
+          <div class="glass card mt-24">
+            <div class="panel-title"><h3>Activity, last 90 days</h3></div>
+            <div id="streak-calendar" style="display:grid; grid-template-columns: repeat(30, 1fr); gap:4px;"></div>
+          </div>
+        </section>
+
+        <!-- ============ SETTINGS ============ -->
+        <section class="view" id="view-settings" data-view="settings">
+          <div class="page-header">
+            <div><h1>Settings</h1><p>Your profile, study goal, and account.</p></div>
+          </div>
+
+          <div class="section-grid">
+            <div class="glass card">
+              <div class="panel-title"><h3>Profile</h3></div>
+              <form id="settings-profile-form">
+                <div class="field">
+                  <label for="s-full-name">Full name</label>
+                  <input class="input" id="s-full-name" type="text" />
+                </div>
+                <div class="auth-form-grid">
+                  <div class="field">
+                    <label for="s-department">Department</label>
+                    <input class="input" id="s-department" type="text" />
+                  </div>
+                  <div class="field">
+                    <label for="s-level">Level</label>
+                    <input class="input" id="s-level" type="text" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="s-goal">Daily study goal (minutes)</label>
+                  <input class="input" id="s-goal" type="number" min="5" max="720" />
+                </div>
+                <button class="btn btn--primary" type="submit">Save profile</button>
+              </form>
+            </div>
+
+            <div class="glass card">
+              <div class="panel-title"><h3>Change password</h3></div>
+              <form id="settings-password-form">
+                <div class="field">
+                  <label for="s-current-pw">Current password</label>
+                  <input class="input" id="s-current-pw" type="password" autocomplete="current-password" />
+                </div>
+                <div class="field">
+                  <label for="s-new-pw">New password</label>
+                  <input class="input" id="s-new-pw" type="password" autocomplete="new-password" />
+                  <div class="field-hint">At least 8 characters, including a number.</div>
+                </div>
+                <button class="btn btn--ghost" type="submit">Change password</button>
+              </form>
+
+              <div class="panel-title mt-24"><h3>Appearance</h3></div>
+              <div class="flex" style="justify-content:space-between;">
+                <span class="text-sm text-muted">Dark / light mode</span>
+                <button class="btn btn--ghost btn--sm" data-theme-toggle aria-pressed="false">Toggle theme</button>
+              </div>
+
+              <div class="panel-title mt-24"><h3>Email preferences</h3></div>
+              <div class="flex" style="justify-content:space-between;">
+                <div>
+                  <span class="text-sm">Daily study reminders</span>
+                  <p class="text-sm text-muted" style="margin-top:2px;">A quick email if you haven't studied yet that day.</p>
+                </div>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="s-email-reminders" />
+                  <span>Enabled</span>
+                </label>
+              </div>
+              <p class="text-sm text-muted mt-16">Account, verification, and password-reset emails can't be turned off — see <a href="terms.html" target="_blank" style="color:var(--marigold);">Terms</a>.</p>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  <script src="assets/js/shell.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
