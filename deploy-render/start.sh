@@ -1,32 +1,41 @@
 #!/bin/sh
-# Starts the AI service in the background, waits for it to report
-# healthy, then starts the Node backend in the foreground (so Docker/
-# Render sees the container as "up" for as long as the backend runs).
+# Starts both the AI service (Python/FastAPI, background) and the backend
+# (Node/Express, foreground) inside the single combined Render container.
+#
+# Render only health-checks the backend (the port it's told to route to),
+# so if the AI service dies silently the container would otherwise look
+# "healthy" while quizzes/uploads fail. The background watcher below kills
+# the whole container if the AI service process exits, so Render's health
+# check fails fast and restarts the container instead of leaving it half-broken.
+
 set -e
 
-echo "[start] Launching AI service..."
+echo "[start.sh] Launching AI service (uvicorn) on 127.0.0.1:8000 ..."
 cd /app/ai-service
 uvicorn app.main:app --host 127.0.0.1 --port 8000 &
 AI_PID=$!
 
-echo "[start] Waiting for AI service to become healthy..."
-for i in $(seq 1 30); do
-  if wget -qO- http://127.0.0.1:8000/health >/dev/null 2>&1; then
-    echo "[start] AI service is healthy."
+# Watcher: if the AI service process dies, bring down the whole container.
+(
+  while kill -0 "$AI_PID" 2>/dev/null; do
+    sleep 2
+  done
+  echo "[start.sh] AI service process ($AI_PID) exited — stopping container."
+  kill 0
+) &
+
+echo "[start.sh] Waiting for AI service to become healthy ..."
+i=0
+until wget -q -O /dev/null http://127.0.0.1:8000/health 2>/dev/null; do
+  i=$((i + 1))
+  if [ "$i" -ge 30 ]; then
+    echo "[start.sh] AI service did not become healthy after 30s — continuing anyway."
     break
-  fi
-  if [ "$i" = "30" ]; then
-    echo "[start] AI service did not become healthy in time — exiting."
-    exit 1
   fi
   sleep 1
 done
+echo "[start.sh] AI service check done after ${i}s."
 
-# If the AI service dies later, bring the whole container down so
-# Render's health check (against the backend) fails and restarts it,
-# rather than silently running a backend with a dead AI service.
-( wait "$AI_PID"; echo "[start] AI service exited — stopping container."; kill 0 ) &
-
-echo "[start] Launching backend..."
+echo "[start.sh] Starting backend (node server.js) in foreground ..."
 cd /app/backend
 exec node server.js
