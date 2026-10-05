@@ -1,15 +1,22 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Email service. Works with Gmail SMTP out of the box (see README
- * "Setting up email"), but is provider-agnostic — swap the EMAIL_HOST/
- * EMAIL_PORT env vars for Brevo, Resend's SMTP endpoint, etc. and this
- * code doesn't change.
+ * Email service. Two send paths, tried in this order:
  *
- * If EMAIL_USER/EMAIL_PASS aren't set, the transporter is left null and
- * sendMail() logs to the console instead of throwing — this keeps local
- * dev working without forcing everyone to set up SMTP just to run the
- * app, while still exercising the real code path in production.
+ * 1. Brevo's HTTP API (BREVO_API_KEY set) — sends over plain HTTPS
+ *    (port 443), so it works on hosts that block outbound SMTP ports
+ *    25/465/587, which several free-tier platforms do (Render's free
+ *    web services are one example). This is the recommended path for
+ *    any hosted deployment.
+ * 2. SMTP via Nodemailer (EMAIL_USER/EMAIL_PASS set) — works locally
+ *    and on hosts that don't block SMTP ports, e.g. Gmail SMTP for
+ *    local dev, or Brevo's own SMTP relay when not deploying to a
+ *    port-restricted host.
+ *
+ * If neither is configured, sendMail() logs to the console instead of
+ * throwing — this keeps local dev working without forcing everyone to
+ * set up email just to run the app, while still exercising the real
+ * code path once either is configured.
  */
 let transporter = null;
 
@@ -33,13 +40,52 @@ function getTransporter() {
   return transporter;
 }
 
+async function sendViaBrevoApi({ to, subject, html, text }) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: { name: 'Recall', email: process.env.EMAIL_FROM },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text || html.replace(/<[^>]+>/g, ''),
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Brevo API responded ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  return res.json();
+}
+
 async function sendMail({ to, subject, html, text }) {
+  // Path 1: Brevo HTTP API — preferred whenever configured, since it
+  // works over plain HTTPS and isn't affected by a host blocking
+  // outbound SMTP ports.
+  if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
+    try {
+      await sendViaBrevoApi({ to, subject, html, text });
+      return { sent: true, via: 'brevo_api' };
+    } catch (err) {
+      console.error('[email] Brevo API send failed:', err.message);
+      return { sent: false, reason: err.message };
+    }
+  }
+
+  // Path 2: SMTP via Nodemailer
   const t = getTransporter();
 
   if (!t) {
-    // No SMTP configured — don't crash the request, just make it obvious
-    // in the logs so a developer notices during local dev.
-    console.warn(`[email] EMAIL_USER/EMAIL_PASS not set — skipping real send.\n  To: ${to}\n  Subject: ${subject}`);
+    // Neither configured — don't crash the request, just make it
+    // obvious in the logs so a developer notices during local dev.
+    console.warn(`[email] No email method configured (BREVO_API_KEY or EMAIL_USER/EMAIL_PASS) — skipping real send.\n  To: ${to}\n  Subject: ${subject}`);
     return { sent: false, reason: 'not_configured' };
   }
 
@@ -51,12 +97,12 @@ async function sendMail({ to, subject, html, text }) {
       text: text || html.replace(/<[^>]+>/g, ''),
       html,
     });
-    return { sent: true };
+    return { sent: true, via: 'smtp' };
   } catch (err) {
     // Email failures should not break the request they're attached to
     // (e.g. a failed reset email shouldn't 500 the forgot-password
     // endpoint) — log it and let the caller decide what to do.
-    console.error('[email] Send failed:', err.message);
+    console.error('[email] SMTP send failed:', err.message);
     return { sent: false, reason: err.message };
   }
 }
