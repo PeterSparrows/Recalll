@@ -36,7 +36,7 @@
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/api.js"></script>
   <script>
-    (async () => {
+    (() => {
       const params = new URLSearchParams(location.search);
       const token = params.get('token');
       const content = document.getElementById('verify-content');
@@ -46,12 +46,28 @@
         return;
       }
 
-      try {
-        await Api.verifyEmail(token);
-        content.innerHTML = `<h1 style="font-size:1.3rem;">Email verified ✓</h1><p class="text-muted mt-16">You're all set. You can head back to your dashboard now.</p><a href="dashboard.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to dashboard</a>`;
-      } catch (err) {
-        content.innerHTML = `<h1 style="font-size:1.3rem;">Couldn't verify this link</h1><p class="text-muted mt-16">${err.message || 'The link may have expired.'} You can request a new one from Settings once logged in.</p><a href="login.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to login</a>`;
-      }
+      // Don't auto-verify on page load: many email providers and security
+      // scanners pre-visit links in emails to check them for safety before
+      // the user opens their inbox. If this page verified automatically,
+      // that scanner's visit would consume the one-time token before the
+      // real user ever clicks the link, leaving them with a bogus
+      // "invalid or expired" error. Requiring an explicit click sidesteps
+      // that, since scanners load pages but don't click buttons.
+      content.innerHTML = `
+        <h1 style="font-size:1.3rem;">Confirm your email</h1>
+        <p class="text-muted mt-16">Click below to finish verifying your Recall account.</p>
+        <button id="verify-btn" class="btn btn--primary mt-24">Verify my email</button>
+      `;
+
+      document.getElementById('verify-btn').addEventListener('click', async () => {
+        content.innerHTML = `<div class="spinner" style="width:32px;height:32px; margin:0 auto 20px;"></div><h1 style="font-size:1.3rem;">Verifying your email…</h1>`;
+        try {
+          await Api.verifyEmail(token);
+          content.innerHTML = `<h1 style="font-size:1.3rem;">Email verified ✓</h1><p class="text-muted mt-16">You're all set. You can head back to your dashboard now.</p><a href="dashboard.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to dashboard</a>`;
+        } catch (err) {
+          content.innerHTML = `<h1 style="font-size:1.3rem;">Couldn't verify this link</h1><p class="text-muted mt-16">${err.message || 'The link may have expired.'} You can request a new one from Settings once logged in.</p><a href="login.html" class="btn btn--primary mt-24" style="display:inline-flex;">Go to login</a>`;
+        }
+      });
     })();
   </script>
 </body>
