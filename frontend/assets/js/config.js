@@ -3,5 +3,5 @@
 // sure that matches wherever you're serving this frontend from
 // (see README "Running the frontend").
 window.APP_CONFIG = {
-  API_BASE_URL: 'http://localhost:5000/api',
+  API_BASE_URL: 'https://recall-backend-1q6q.onrender.com/api',
 };
